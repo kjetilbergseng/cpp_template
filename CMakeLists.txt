@@ -16,8 +16,14 @@ add_executable(
     "src/main.cpp"
     )
 
+#add test project
+add_executable (
+    "${PROJECT_NAME}_Test" 
+    "src/tests/testmain.cpp")
+
 # add dependencies
 include(cmake/CPM.cmake)
+include(cmake/doctest.cmake)
 
 CPMAddPackage(
   NAME fmt
@@ -38,8 +44,15 @@ set_target_properties(fmt PROPERTIES FOLDER "dependencies")
 set_target_properties(doctest_with_main PROPERTIES FOLDER "dependencies")
 set_target_properties(spdlog PROPERTIES FOLDER "dependencies")
 
+enable_testing()
+doctest_discover_tests(
+    "${PROJECT_NAME}_Test")
+
 target_link_libraries(
     "${PROJECT_NAME}"
     fmt 
-    doctest_with_main 
     spdlog)
+
+target_link_libraries(
+    "${PROJECT_NAME}_Test"
+    doctest_with_main)
