@@ -7,8 +7,18 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-
 set_property(GLOBAL PROPERTY USE_FOLDERS true)
+
+# Warnings
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
+    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set(warnings "-Wall -Wextra -Werror")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    set(warnings "/W4 /WX /EHsc")
+endif()
+
+set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${warnings}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${warnings}")
 
 # add executable
 add_executable(
@@ -16,14 +26,13 @@ add_executable(
     "src/main.cpp"
     )
 
-#add test project
+# add test project
 add_executable (
     "${PROJECT_NAME}_Test" 
     "src/tests/testmain.cpp")
 
 # add dependencies
 include(cmake/CPM.cmake)
-include(cmake/doctest.cmake)
 
 CPMAddPackage(
   NAME fmt
@@ -44,10 +53,13 @@ set_target_properties(fmt PROPERTIES FOLDER "dependencies")
 set_target_properties(doctest_with_main PROPERTIES FOLDER "dependencies")
 set_target_properties(spdlog PROPERTIES FOLDER "dependencies")
 
+# enable testing
+include(cmake/doctest.cmake)
 enable_testing()
 doctest_discover_tests(
     "${PROJECT_NAME}_Test")
 
+# link libraries
 target_link_libraries(
     "${PROJECT_NAME}"
     fmt 
